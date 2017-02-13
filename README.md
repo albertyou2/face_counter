@@ -2,6 +2,7 @@
 1. tested on ubuntu 16.04 ，opencv 3.1.0 ,python 2.7.13
 2. this repo is forked from https://github.com/kvasnyj/face_counter.git
 3. a little modified : cv2.imshow a new face when found it 
+
 # usage:
 1)install python 2.7.13 
 2)install onpencv 3.1.0 with contrib successfully(make sure python can find 'cv2.so')
