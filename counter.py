@@ -3,7 +3,7 @@ import numpy as np
 import datetime as dt
 
 # constant
-faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
+faceCascade = cv2.CascadeClassifier('./haarcascade_frontalface_alt.xml')
 OPENCV_METHODS = {
     "Correlation": 0,
     "Chi-Squared": 1,
@@ -20,6 +20,7 @@ total_delta = 0
 stm = {}
 q = []
 term_crit = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
+#video_capture = cv2.VideoCapture('/home/sojoyoo/videos/1.mp4')
 video_capture = cv2.VideoCapture(0)
 
 while True:
@@ -39,6 +40,9 @@ while True:
         flags=cv2.CASCADE_SCALE_IMAGE
     )
 
+    if len(faces) > 0 :
+        print 'found faces: ',len(faces)
+
     count = len(faces)
     if len(q) >= q_limit: del q[0]
     q.append(count)
@@ -52,8 +56,10 @@ while True:
     total_delta = 0
     for (x, y, w, h) in faces:
         # Draw a rectangle around the faces
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        if count == prev_count: continue
+        #cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
+        cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2, lineType=cv2.LINE_AA)
+        if count == prev_count: 
+            continue
 
         # set up the ROI
         face = frame[y: y + h, x: x + w]
@@ -65,8 +71,13 @@ while True:
         isFound = False
         for t in stm:
             hist_compare = cv2.compareHist(stm[t], face_hist, OPENCV_METHODS["Correlation"])
-            if hist_compare > max_hist: max_hist = hist_compare
-            if hist_compare >= hist_limit: isFound = True
+            if hist_compare > max_hist: 
+                max_hist = hist_compare
+            if hist_compare >= hist_limit: 
+                isFound = True
+                # crop and save
+                cv2.imshow("cropped", face)
+            
 
         if (len(stm) == 0) or (isFound is False and max_hist > 0):
             total_delta += 1
@@ -78,7 +89,8 @@ while True:
         prev_count = count
 
     # Display the resulting frame
-    cv2.imshow('Video', frame)
+    to_draw = cv2.resize(frame, (640, 480))
+    cv2.imshow('Video', to_draw)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
